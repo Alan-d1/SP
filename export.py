@@ -280,9 +280,7 @@ def export_detector_homoAdapt_gpu(config, output_dir, args):
         myfile.write("homography adaptation: " + str(homoAdapt_iter) + "\n")
 
     ## loop through all images
-
     for i, sample in tqdm(enumerate(test_loader)):
-        # sample = test_set[i]
         name = sample["name"][0]
         logging.info(f"name: {name}")
         if check_exist:
@@ -290,6 +288,7 @@ def export_detector_homoAdapt_gpu(config, output_dir, args):
             if p.exists():
                 logging.info("file %s exists. skip the sample.", name)
                 continue
+
         img, mask_2D = sample["image"], sample["valid_mask"]
         img = img.transpose(0, 1)
         img_2D = sample["image_2D"].numpy().squeeze()
@@ -317,8 +316,11 @@ def export_detector_homoAdapt_gpu(config, output_dir, args):
             fe.heatmap = outputs  # tensor [batch, 1, H, W]
             print("outputs: ", outputs.shape)
             print("pts: ", pts.shape)
-            if pts.shape[-1]==0:
+            if pts.shape[-1] == 0:
                 continue
+
+            pts = fe.soft_argmax_points([pts])
+            pts = pts[0]
 
         ## top K points
         pts = pts.transpose()

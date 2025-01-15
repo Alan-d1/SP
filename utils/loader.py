@@ -159,9 +159,13 @@ def get_model(name):
 def modelLoader(model='SuperPointNet', **options):
     # create model
     logging.info("=> creating model: %s", model)
-    net = get_model(model)
+    if model=='SuperPointNet':
+        from models.SuperPointNet_pretrained import SuperPointNet as net
+    else:
+        net = get_model(model)
     net = net(**options)
     return net
+
 
 
 # mode: 'full' means the formats include the optimizer and epoch

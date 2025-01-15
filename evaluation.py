@@ -19,33 +19,8 @@ import os
 from tqdm import tqdm
 from utils.draw import plot_imgs
 from utils.logging import *
-#
-# def draw_matches_cv(data, matches, plot_points=True):
-#     if plot_points:
-#         keypoints1 = [cv2.KeyPoint(p[1], p[0], 1) for p in data['keypoints1']]
-#         keypoints2 = [cv2.KeyPoint(p[1], p[0], 1) for p in data['keypoints2']]
-#     else:
-#         matches_pts = data['matches']
-#         keypoints1 = [cv2.KeyPoint(p[0], p[1], 1) for p in matches_pts]
-#         keypoints2 = [cv2.KeyPoint(p[2], p[3], 1) for p in matches_pts]
-#         print(f"matches_pts: {matches_pts}")
-#         # keypoints1, keypoints2 = [], []
-#
-#     inliers = data['inliers'].astype(bool)
-#     # matches = np.array(data['matches'])[inliers].tolist()
-#     # matches = matches[inliers].tolist()
-#     def to3dim(img):
-#         if img.ndim == 2:
-#             img = img[:, :, np.newaxis]
-#         return img
-#     img1 = to3dim(data['image1'])
-#     img2 = to3dim(data['image2'])
-#     img1 = np.concatenate([img1, img1, img1], axis=2)
-#     img2 = np.concatenate([img2, img2, img2], axis=2)
-#     return cv2.drawMatches(img1, keypoints1, img2, keypoints2, matches,
-#                            None, matchColor=(0,255,0), singlePointColor=(0, 0, 255))
+
 def draw_matches_cv(data, matches, plot_points=True):
-    # 根据 plot_points 标志选择不同的关键点
     if plot_points:
         keypoints1 = [cv2.KeyPoint(p[1], p[0], 1) for p in data['keypoints1']]
         keypoints2 = [cv2.KeyPoint(p[1], p[0], 1) for p in data['keypoints2']]
@@ -54,25 +29,21 @@ def draw_matches_cv(data, matches, plot_points=True):
         keypoints1 = [cv2.KeyPoint(p[0], p[1], 1) for p in matches_pts]
         keypoints2 = [cv2.KeyPoint(p[2], p[3], 1) for p in matches_pts]
         print(f"matches_pts: {matches_pts}")
+        # keypoints1, keypoints2 = [], []
 
     inliers = data['inliers'].astype(bool)
-
-    # 将图像转换为三通道
+    # matches = np.array(data['matches'])[inliers].tolist()
+    # matches = matches[inliers].tolist()
     def to3dim(img):
         if img.ndim == 2:
             img = img[:, :, np.newaxis]
         return img
-
     img1 = to3dim(data['image1'])
     img2 = to3dim(data['image2'])
-
-    # 将灰度图扩展为三通道并转换为 uint8 类型
-    img1 = (np.concatenate([img1, img1, img1], axis=2) * 255).astype(np.uint8)
-    img2 = (np.concatenate([img2, img2, img2], axis=2) * 255).astype(np.uint8)
-
-    # 使用 cv2.drawMatches 绘制匹配点
+    img1 = np.concatenate([img1, img1, img1], axis=2)
+    img2 = np.concatenate([img2, img2, img2], axis=2)
     return cv2.drawMatches(img1, keypoints1, img2, keypoints2, matches,
-                           None, matchColor=(0, 255, 0), singlePointColor=(0, 0, 255))
+                           None, matchColor=(0,255,0), singlePointColor=(0, 0, 255))
 
 def isfloat(value):
   try:
