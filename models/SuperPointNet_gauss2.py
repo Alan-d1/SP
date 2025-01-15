@@ -51,7 +51,7 @@ class SuperPointNet_gauss2(torch.nn.Module):
           desc: Output descriptor pytorch tensor shaped N x 256 x H/8 x W/8.
         """
         # Let's stick to this version: first BN, then relu
-        x = x.repeat(1, 3, 1, 1)
+        # x = x.repeat(1, 3, 1, 1)
         x = self.trans(x)
         x1 = self.inc(x)
         x2 = self.down1(x1)

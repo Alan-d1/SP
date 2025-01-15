@@ -1,5 +1,5 @@
 import tensorflow as tf
-
+from tensorflow.contrib.image import transform as H_transform
 from math import pi
 import cv2 as cv
 
@@ -53,8 +53,8 @@ def homography_adaptation(image, net, config):
         # Sample image patch
         H = sample_homography(shape, **config['homographies'])
         H_inv = invert_homography(H)
-        warped = tf.image.transform(image, H, interpolation='BILINEAR')
-        count = tf.image.transform(tf.expand_dims(tf.ones(tf.shape(image)[:3]), -1),
+        warped = H_transform(image, H, interpolation='BILINEAR')
+        count = H_transform(tf.expand_dims(tf.ones(tf.shape(image)[:3]), -1),
                             H_inv, interpolation='NEAREST')[..., 0]
 
         # Predict detection probabilities
@@ -63,7 +63,7 @@ def homography_adaptation(image, net, config):
         input_warped = tf.image.resize_images(warped, warped_shape)
         prob = net(input_warped)['prob']
         prob = tf.image.resize_images(tf.expand_dims(prob, axis=-1), shape)[..., 0]
-        prob_proj = tf.image.transform(tf.expand_dims(prob, -1), H_inv,
+        prob_proj = H_transform(tf.expand_dims(prob, -1), H_inv,
                                 interpolation='BILINEAR')[..., 0]
 
         probs = tf.concat([probs, tf.expand_dims(prob_proj, -1)], axis=-1)
@@ -255,7 +255,7 @@ def compute_valid_mask(image_shape, homography, erosion_radius=0):
 
     Returns: a Tensor of type `tf.int32` and shape (H, W).
     """
-    mask = tf.image.transform(tf.ones(image_shape), homography, interpolation='NEAREST')
+    mask = H_transform(tf.ones(image_shape), homography, interpolation='NEAREST')
     if erosion_radius > 0:
         kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (erosion_radius*2,)*2)
         mask = tf.nn.erosion2d(

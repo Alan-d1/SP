@@ -2,7 +2,7 @@
 # may be some duplication with model_wrap.py
 # PointTracker is from Daniel's repo.
 """
-
+import cv2
 import numpy as np
 import torch
 from torch.autograd import Variable
@@ -71,6 +71,7 @@ class SuperPointFrontend_torch(object):
 
     def loadModel(self, weights_path):
         # Load the network in inference mode.
+        trained = False
         if weights_path[-4:] == '.tar':
             trained = True
         # if cuda:
@@ -96,7 +97,7 @@ class SuperPointFrontend_torch(object):
             self.net = modelLoader(model=model, **params)
             # from models.SuperPointNet import SuperPointNet
             # self.net = SuperPointNet()
-            checkpoint = torch.load(weights_path,
+            checkpoint = torch.load(weights_path,weights_only=True,
                                     map_location=lambda storage, loc: storage)
             self.net.load_state_dict(checkpoint['model_state_dict'])
         else:
@@ -112,7 +113,7 @@ class SuperPointFrontend_torch(object):
 
     def net_parallel(self):
         print("=== Let's use", torch.cuda.device_count(), "GPUs!")
-        self.net = nn.DataParallel(self.net)
+        self.net = nn.DataParallel(self.net,device_ids=[0, 1])
 
     def nms_fast(self, in_corners, H, W, dist_thresh):
         """
